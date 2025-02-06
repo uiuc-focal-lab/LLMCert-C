@@ -10,17 +10,21 @@ from transformers import BitsAndBytesConfig
 
 BATCH_NUM = 1
 qa_model = None
-GPU_MAP = {0: "0GiB", 1: "0GiB", 2: "40GiB", 3: "40GiB", "cpu":"50GiB"}
-INPUT_DEVICE = 'cuda:2'
+GPU_MAP = {0: "20GiB", 1: "20GiB", 2: "20GiB", 3: "20GiB", "cpu":"0GiB"}
+INPUT_DEVICE = 'cuda:0'
+CONTINUOUS_SAFE = 0
+NUM_GEN = 0
+MAX_CONTEXT_LEN = 8000
+MAX_PROMPT_LEN = 10000
 
 def get_args():
     parser = get_base_args()
-    parser.add_argument('--qa_llm', type=str, default='meta-llama/Meta-Llama-3-8B-Instruct', help='Path to the QA model, like the huggingface model name or according to an API')
-    parser.add_argument('--quant_type', type=str, default=None, choices=['8_bit', '4_bit'], help='quantization mode')  # Explicitly set choices
+    parser.add_argument('--qa_llm', type=str, default='meta-llama/Llama-3.2-3B-Instruct')
+    parser.add_argument('--quant_type', type=str, default=None, choices=['8_bit', '4_bit'])  # Explicitly set choices
     parser.set_defaults(num_queries=250) # override if needed
     return parser.parse_args()
 
-def load_model(model_name="lmsys/vicuna-13b-v1.5", only_tokenizer=False, gpu_map={0: "26GiB", 1: "0GiB", 2: "0GiB", 3: "0GiB", "cpu":"120GiB"}, quant_type=None):
+def load_model(model_name="meta-llama/Llama-3.2-1B-Instruct", only_tokenizer=False, gpu_map={0: "26GiB", 1: "0GiB", 2: "0GiB", 3: "0GiB", "cpu":"120GiB"}, quant_type=None):
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
     if not only_tokenizer:
         if quant_type is not None:
@@ -32,7 +36,7 @@ def load_model(model_name="lmsys/vicuna-13b-v1.5", only_tokenizer=False, gpu_map
                 model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', max_memory=gpu_map, bnb_4bit_quant_type="nf4", load_in_4bit=True,  bnb_4bit_compute_dtype=torch.float16)
         else:
             print('no quantization, loading in fp16')
-            model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', max_memory=gpu_map, torch_dtype=torch.float16)
+            model = AutoModelForCausalLM.from_pretrained(model_name, device_map='auto', max_memory=gpu_map, torch_dtype=torch.float16, attn_implementation='eager')
         tokenizer.pad_token = tokenizer.eos_token
         model.config.pad_token_id = tokenizer.pad_token_id
         assert model.config.pad_token_id == tokenizer.pad_token_id, "The model's pad token ID does not match the tokenizer's pad token ID!"
@@ -44,6 +48,7 @@ def load_model(model_name="lmsys/vicuna-13b-v1.5", only_tokenizer=False, gpu_map
 def query_model(prompts, model, tokenizer, do_sample=True, top_k=10, 
                 num_return_sequences=1, max_length=240, temperature=1.0, INPUT_DEVICE='cuda:0'):
     # preprocess prompts:
+    global MAX_CONTEXT_LEN
     LLAMA3_SYS_PROMPT = "You are a helpful chatbot who answers multiple choice reasoning questions in a specified format choosing from only the options available"
     chats = []
     if len(prompts) > 1:
@@ -54,9 +59,10 @@ def query_model(prompts, model, tokenizer, do_sample=True, top_k=10,
         chats = [{"role": "system", "content": LLAMA3_SYS_PROMPT}, {"role":"user", "content":f"{prompts[0]}"}]
         
     input_ids = tokenizer.apply_chat_template(chats, return_tensors="pt", add_generation_prompt=True, padding=True).to(INPUT_DEVICE)
-    if input_ids.shape[-1] > 8000:
+    if input_ids.shape[-1] > MAX_PROMPT_LEN:
         print("Input too long, input too long, number of tokens: ", input_ids.shape)
-        input_ids = input_ids[:, :8000]
+        print(chats)
+        input_ids = input_ids[:, :MAX_PROMPT_LEN]
     terminators = [
         tokenizer.eos_token_id,
         tokenizer.convert_tokens_to_ids("<|eot_id|>")
@@ -71,7 +77,7 @@ def query_model(prompts, model, tokenizer, do_sample=True, top_k=10,
 def main():
     args = get_args()
     all_times, num_certificates_generated = run_experiment(args, load_model=load_model, query_model_func=query_model, 
-                                                           GPU_MAP=GPU_MAP, BATCH_NUM=BATCH_NUM, INPUT_DEVICE=INPUT_DEVICE, model_context_length=7200)
+                                                           GPU_MAP=GPU_MAP, BATCH_NUM=BATCH_NUM, INPUT_DEVICE=INPUT_DEVICE, model_context_length=MAX_CONTEXT_LEN)
     print(f'Completed {num_certificates_generated} certificates')
     print(f'Average time = {np.mean(all_times)}')
 if __name__ == '__main__':

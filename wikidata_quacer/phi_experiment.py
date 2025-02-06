@@ -11,9 +11,9 @@ import time
 
 BATCH_NUM = 1
 qa_model = None
-GPU_MAP = {0: "40GiB", 1: "0GiB", 2: "0GiB", 3: "0GiB", "cpu":"120GiB"}
+GPU_MAP = {0: "20GiB", 1: "20GiB", 2: "20GiB", 3: "20GiB", "cpu":"0GiB"}
 INPUT_DEVICE = 'cuda:0'
-MODEL_CONTEXT_LEN = 120000
+MODEL_CONTEXT_LEN = 8000
 NUM_GEN = 0
 
 def get_args():
@@ -78,6 +78,7 @@ def query_model(prompts, model, tokenizer, do_sample=True, top_k=10,
     # print(responses)
     # torch.cuda.empty_cache()
     print(f"Time taken for generating: {time.time() - start_time}")
+    
     return responses
 
 def main():

@@ -26,7 +26,7 @@ def load_model(model_name="gemini-1.5-flash", only_tokenizer=False, gpu_map={0: 
     global CONTINUOUS_SAFE
     tokenizer = None
     if not only_tokenizer:
-        genai.configure(api_key=os.environ["API_KEY"])
+        genai.configure(api_key=os.env['API_KEY'])
         model = genai.GenerativeModel(model_name)
         return tokenizer, model
     else:
@@ -66,19 +66,17 @@ def query_model(prompts, model, tokenizer, do_sample=True, top_k=10,
             print(e)
             response = "I'm sorry, I can't generate a response to that prompt."
             responses.append(response)
-            time.sleep(1) #maybe rate limit error
+            time.sleep(3) #maybe rate limit error
             CONTINUOUS_SAFE += 1
             if CONTINUOUS_SAFE >= 4:
                 print("Continuous safety error, too many", CONTINUOUS_SAFE, "possible rate limit error")
                 exit(1)
-    time.sleep(0.15)
+    time.sleep(0.3)
     return responses
 
-def main():
-    args = get_args()
-    all_times, num_certificates_generated = run_experiment(args, load_model=load_model, query_model_func=query_model, 
-                                                           GPU_MAP=GPU_MAP, BATCH_NUM=BATCH_NUM, INPUT_DEVICE=INPUT_DEVICE, model_context_length=12800)
-    print(f'Completed {num_certificates_generated} certificates')
-    print(f'Average time = {np.mean(all_times)}')
-if __name__ == '__main__':
-    main()
+args = get_args()
+
+all_times, num_certificates_generated = run_experiment(args, load_model=load_model, query_model_func=query_model, 
+                                                        GPU_MAP=GPU_MAP, BATCH_NUM=BATCH_NUM, INPUT_DEVICE=INPUT_DEVICE, model_context_length=5800)
+print(f'Completed {num_certificates_generated} certificates')
+print(f'Average time = {np.mean(all_times)}')

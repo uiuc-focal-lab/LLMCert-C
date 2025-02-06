@@ -34,7 +34,7 @@ wikidata_graphs/
 gemini/
 mistral1/
 .git/
-wikidata_graphs/
+wikidata_graphs/*
 vicuna7b_16/
 4bit_vicuna/
 llama/

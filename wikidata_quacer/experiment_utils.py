@@ -128,7 +128,7 @@ def run_experiment(args, load_model, query_model_func, GPU_MAP, model_context_le
             continue
         start_time = time.time()
         subgraph = qa_graph_algos.create_subgraph_within_radius(vertex_id, 4)
-        subgraph_algos = GraphAlgos(subgraph, entity_aliases, relation_aliases)
+        subgraph_algos = GraphAlgos(subgraph, entity_aliases, relation_aliases, origin_graph=qa_graph_algos.graph)
         if len(subgraph) < 900:
             print(len(subgraph), "Skipping", vertex_id, vertex) # Skip small subgraphs
             continue
