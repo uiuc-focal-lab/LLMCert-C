@@ -8,7 +8,7 @@ This work introduces a method to **certify the comprehension of knowledge by LLM
 
 **Key Features:**
 
-- **Formal Probabilistic Guarantees:** QuaCer-C provides high-confidence bounds on the probability of correct LLM responses.
+- **Formal Probabilistic Guarantees:** LLMCert-C provides high-confidence bounds on the probability of correct LLM responses.
 - **Knowledge Graph Specifications:**  Uses knowledge graphs to define distributions of multi-hop reasoning problems, enabling precise and scalable prompt generation.
 - **Model-Agnostic:**  Compatible with both open and closed-source LLMs via API access.
 - **Quantitative Certificates:** Delivers certificates as tight bounds on the probability of correctness, offering a nuanced measure of LLM capability.
@@ -96,7 +96,7 @@ Please refer to mainly the `experiment_utils.py` file and somewhat to the indivi
 
 ### [Optional] Creating a Custom Model Experiment File
 
-You can create your own `model_experiment.py` file to adapt QuaCer-C to a new LLM.  Your custom file should define two main functions:
+You can create your own `model_experiment.py` file to adapt LLMCert-C to a new LLM.  Your custom file should define two main functions:
 
 1. `get_args()`: This function should parse command-line arguments specific to your model.  It should inherit base arguments from `experiment_utils.get_base_args()` and add any model-specific arguments. The minimum args to add are 'qa-llm' and 'quant_type'. See `model_experiment_template.py` or `gemini_experiment.py` for details.
 
