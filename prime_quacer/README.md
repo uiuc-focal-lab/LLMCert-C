@@ -1,10 +1,10 @@
-# Prime QuaCer: Certifying Knowledge Comprehension in LLMs for Precision Medicine
+# Prime LLMCert-C: Certifying Knowledge Comprehension in LLMs for Precision Medicine
 
 This folder contains code and resources for certifying knowledge comprehension abilities of Large Language Models (LLMs) within the precision medicine domain using the PrimeKG knowledge graph.
 
 ## Overview
 
-Prime QuaCer enables certification of LLMs' ability to answer multi-hop reasoning queries over medical knowledge with formal probabilistic guarantees. The certification framework:
+Prime LLMCert-C enables certification of LLMs' ability to answer multi-hop reasoning queries over medical knowledge with formal probabilistic guarantees. The certification framework:
 
 - Uses PrimeKG's graph structure to generate challenging queries spanning drugs, diseases, genes, and phenotypes
 - Creates specifications based on common clinical reasoning patterns like drug-disease interactions and phenotype-based diagnosis
