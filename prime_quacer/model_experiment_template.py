@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Template for creating a new model experiment file for Prime Quacer.
+Template for creating a new model experiment file for Prime LLMCert-C.
 
 This template demonstrates how to run a certification experiment.
 Custom experiment files should define:
@@ -28,7 +28,7 @@ from discovery_functions import *
 
 def get_args():
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(description="Prime Quacer Model Experiment Template")
+    parser = argparse.ArgumentParser(description="Prime LLMCert-C Model Experiment Template")
     # Base experiment arguments
     parser.add_argument("--qa_llm", type=str, required=True, help="Name or path of the LLM to be certified.")
     parser.add_argument("--quant_type", type=str, default=None, help="Quantization type (e.g., '8_bit', '4_bit').")
