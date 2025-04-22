@@ -1,4 +1,4 @@
-# QuaCer: Quantitative Certification of Knowledge Comprehension in LLMs
+# LLMCert-C: Quantitative Certification of Knowledge Comprehension in LLMs
 
 This repository contains code and resources to quantitatively certify the knowledge comprehension abilities of Large Language Models (LLMs). It hosts two main projects:
 
