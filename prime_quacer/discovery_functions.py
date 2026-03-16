@@ -88,85 +88,85 @@ def build_context_edges(graph, essential_edges, context_nodes, distractor_settin
             
     return list(set(context_edges)), list(set(distractor_nodes))  # Remove duplicates
 
-# def least_side_effects_discoverer(graph, id2name, **kwargs):
-#     """Enhanced version with better edge selection"""
-#     MAX_BUFFER = 5
-#     found_queries = []
+def least_side_effects_discoverer(graph, id2name, **kwargs):
+    """Enhanced version with better edge selection"""
+    MAX_BUFFER = 5
+    found_queries = []
     
-#     disease_nodes = list(graph.keys())
-#     random.shuffle(disease_nodes)
+    disease_nodes = list(graph.keys())
+    random.shuffle(disease_nodes)
     
-#     questions = [
-#         'Which drug used to treat {0} has the least number of side effects?',
-#         'Which medication has the fewest side effects for {0}?',
-#         'Suppose person has {0}. Which medication could cause the minimum number of side effects?',
-#         'What treatment for {0} reports the lowest instances of adverse effects?',
-#         'Which drug for {0} is associated with the fewest side effects?',
-#         'Which medication for {0} has the fewest number of documented side effects?'
-#     ]
+    questions = [
+        'Which drug used to treat {0} has the least number of side effects?',
+        'Which medication has the fewest side effects for {0}?',
+        'Suppose person has {0}. Which medication could cause the minimum number of side effects?',
+        'What treatment for {0} reports the lowest instances of adverse effects?',
+        'Which drug for {0} is associated with the fewest side effects?',
+        'Which medication for {0} has the fewest number of documented side effects?'
+    ]
 
-#     for disease in disease_nodes:
-#         if len(found_queries) >= MAX_BUFFER:
-#             break
+    for disease in disease_nodes:
+        if len(found_queries) >= MAX_BUFFER:
+            break
             
-#         drugs = [node for node, rel in graph[disease].items() if rel == 'RIDR36']
-#         if len(drugs) <= 1:
-#             continue
+        drugs = [node for node, rel in graph[disease].items() if rel == 'RIDR36']
+        if len(drugs) <= 1:
+            continue
             
-#         drug_side_effects = {}
-#         essential_edges = []
-#         context_nodes = {disease}
+        drug_side_effects = {}
+        essential_edges = []
+        context_nodes = {disease}
         
-#         for drug in drugs:
-#             side_effects = [node for node, rel in graph[drug].items() if rel == 'RIDR16']
-#             drug_side_effects[drug] = side_effects
-#             context_nodes.add(drug)
-#             context_nodes.update(side_effects)
+        for drug in drugs:
+            side_effects = [node for node, rel in graph[drug].items() if rel == 'RIDR16']
+            drug_side_effects[drug] = side_effects
+            context_nodes.add(drug)
+            context_nodes.update(side_effects)
         
-#         min_count = min(len(se) for se in drug_side_effects.values())
-#         min_drugs = [d for d, se in drug_side_effects.items() if len(se) == min_count]
+        min_count = min(len(se) for se in drug_side_effects.values())
+        min_drugs = [d for d, se in drug_side_effects.items() if len(se) == min_count]
         
-#         if len(min_drugs) >= 1:
-#             chosen_drug = random.choice(min_drugs)
-#             other_correct = [d for d in min_drugs if d != chosen_drug]
-#             essential_edges = [(disease, chosen_drug)]
-#             essential_edges.extend([(chosen_drug, se) for se in drug_side_effects[chosen_drug]])
+        if len(min_drugs) >= 1:
+            chosen_drug = random.choice(min_drugs)
+            other_correct = [d for d in min_drugs if d != chosen_drug]
+            essential_edges = [(disease, chosen_drug)]
+            essential_edges.extend([(chosen_drug, se) for se in drug_side_effects[chosen_drug]])
             
-#             question = random.choice(questions).format(id2name[disease])
-#             other_drugs = [d for d, se in drug_side_effects.items() if len(se) > min_count]
-#             sorted(other_drugs, key=lambda x: len(drug_side_effects[x]))
-#             for drug in other_drugs[:5]:
-#                 essential_edges.append((disease, drug))
-#                 essential_edges.extend([(drug, se) for se in drug_side_effects[drug]])
-#                 if len(essential_edges) >= 100:
-#                     break
-#             found_queries.append({
-#                 'question': question,
-#                 'chosen_answer': chosen_drug,
-#                 'essential_edges': essential_edges,
-#                 'context_nodes': context_nodes,
-#                 'other_correct_answers': other_correct,
-#                 'distractor_rel': 'RIDR36'
-#             })
+            question = random.choice(questions).format(id2name[disease])
+            other_drugs = [d for d, se in drug_side_effects.items() if len(se) > min_count]
+            sorted(other_drugs, key=lambda x: len(drug_side_effects[x]))
+            for drug in other_drugs[:5]:
+                essential_edges.append((disease, drug))
+                essential_edges.extend([(drug, se) for se in drug_side_effects[drug]])
+                if len(essential_edges) >= 100:
+                    break
+            found_queries.append({
+                'question': question,
+                'chosen_answer': chosen_drug,
+                'essential_edges': essential_edges,
+                'context_nodes': context_nodes,
+                'other_correct_answers': other_correct,
+                'distractor_rel': 'RIDR36'
+            })
     
-#     if found_queries:
-#         chosen_query = random.choice(found_queries)
-#         context_edges, distractor_nodes = build_context_edges(
-#             graph,
-#             chosen_query['essential_edges'],
-#             chosen_query['context_nodes'],
-#             kwargs.get('distractor_setting', False)
-#         )
+    if found_queries:
+        chosen_query = random.choice(found_queries)
+        context_edges, distractor_nodes = build_context_edges(
+            graph,
+            chosen_query['essential_edges'],
+            chosen_query['context_nodes'],
+            kwargs.get('distractor_setting', False)
+        )
         
-#         return CustomQueryResult(
-#             chosen_query['question'],
-#             chosen_query['chosen_answer'],
-#             chosen_query['essential_edges'],
-#             context_edges,
-#             other_correct_answers=chosen_query['other_correct_answers'],
-#             distractor_nodes=distractor_nodes
-#         )
-#     return None
+        return CustomQueryResult(
+            chosen_query['question'],
+            chosen_query['chosen_answer'],
+            chosen_query['essential_edges'],
+            context_edges,
+            other_correct_answers=chosen_query['other_correct_answers'],
+            distractor_nodes=distractor_nodes
+        )
+    return None
 
 def contraindication_indication_discoverer(graph, id2name, **kwargs):
     MAX_BUFFER = 5

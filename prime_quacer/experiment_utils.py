@@ -15,9 +15,9 @@ from subgraph_utils import CustomQueryGenerator, CustomQueryResult
 
 def get_base_args():
     parser = argparse.ArgumentParser('Run Relation-based Certificate experiments')
-    parser.add_argument('--qa_graph_path', type=str, default='qa_graph.json', 
+    parser.add_argument('--qa_graph_path', type=str, default='graph.json', 
                        help='Path to the QA graph JSON file')
-    parser.add_argument('--context_graph_edge_path', type=str, default='context_graph_edge.json',
+    parser.add_argument('--context_graph_edge_path', type=str, default='graph_text_edge.json',
                        help='Path to the context graph edge file')
     parser.add_argument('--results_dir', type=str, default='results/',
                        help='Directory to save results')
@@ -92,7 +92,13 @@ def experiment_pipeline(graph_algos, graph_text_edge, entity_aliases,
                 
                 options_str = '\n'.join([f'{i+1}. {id2name[option]}' 
                                        for i, option in enumerate(query_data['answer_options'])])
-                prompt = LLM_PROMPT_TEMPLATE.format(
+                # prompt = LLM_PROMPT_TEMPLATE.format(
+                #     context=query_data['context'],
+                #     query=query_data['query'],
+                #     options=options_str,
+                #     few_shot_examples=FEW_SHOT_EXAMPLES
+                # )
+                prompt = TOT_LLM_PROMPT_TEMPLATE.format(
                     context=query_data['context'],
                     query=query_data['query'],
                     options=options_str,

@@ -74,6 +74,34 @@ correct answer: <option_number>. <answer>, because <succinct reason>
 follow this exact format and only choose from the given options
 """
 
+TOT_LLM_PROMPT_TEMPLATE = """
+Identify and behave as three different experts that are appropriate to answering this question.
+1. All experts will write down the step and their thinking about the step, then share it with the group.
+2. Then, all experts will go on to the next step, etc.
+3. At each step all experts will score their peers response between 1 and 5, 1 meaning it is highly unlikely, and 5 meaning it is highly likely.
+4. If any expert is judged to be wrong at any point then they leave.
+5. After all experts have provided their analysis, you then analyze all 3 analyses and provide either the consensus solution or your best guess solution.
+
+Below are some examples of how to answer and the kinds of questions that are asked (Note: These examples do not use the full expert format, but show the logic style required):
+{few_shot_examples}
+
+The actual question to answer is:
+{query}
+
+Given Context:
+{context}
+
+Options:
+{options}
+
+---
+**INSTRUCTIONS FOR FINAL OUTPUT:**
+Perform the "Three Experts" analysis as described above. 
+Once the experts have finished and a consensus is reached, you must output the final answer in this EXACT format at the very end of your response:
+
+correct answer: <option_number>. <answer>, because <succinct reason>
+"""
+
 # CHECKER_INITIAL_PROMPT = f"""
 # You are a correct answer evaluator. Your inputs will consist of a question and a correct answer, and a answer from a model.
 # The questions will be of the form:
@@ -723,6 +751,7 @@ def create_context_list(all_sents, relevant_sents_path, relevant_sents_opts, tok
             
         return combined_list
     flat_relevant_sents = [item for sublist in relevant_sents_path for item in sublist]
+        
     tokenized_relevant_sents = tokenizer(flat_relevant_sents, add_special_tokens=False)
     total_length_relevant_sents = sum(len(ids) for ids in tokenized_relevant_sents['input_ids'])
 

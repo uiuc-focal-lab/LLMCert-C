@@ -1,10 +1,10 @@
 transformers
-unidecode
 numpy
-pandas
-torch
-google-generativeai
 statsmodels
-matplotlib
+unidecode
+torch
+fastchat
 accelerate
-datasets
+bitsandbytes
+unidecode
+sentencepiece
